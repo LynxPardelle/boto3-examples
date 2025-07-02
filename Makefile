@@ -1,7 +1,7 @@
 # Makefile for boto3-examples project
 # Provides common commands for development workflow
 
-.PHONY: help setup install test clean lint format
+.PHONY: help setup install test test-simple test-lifecycle test-connection test-all clean lint format
 
 # Default target
 help:
@@ -12,8 +12,14 @@ help:
 	@echo "  setup     - Create virtual environment and install dependencies"
 	@echo "  install   - Install dependencies in existing environment"
 	@echo ""
+	@echo "Test Commands:"
+	@echo "  test             - Run connection test"
+	@echo "  test-connection  - Test AWS credentials and connectivity"
+	@echo "  test-simple      - Run simple S3 operations example"
+	@echo "  test-lifecycle   - Run complete S3 lifecycle example"
+	@echo "  test-all         - Run all examples in sequence"
+	@echo ""
 	@echo "Development Commands:"
-	@echo "  test      - Run connection test"
 	@echo "  clean     - Remove virtual environment and cache files"
 	@echo ""
 	@echo "Quality Commands:"
@@ -55,6 +61,42 @@ ifeq ($(OS),Windows_NT)
 	.\.venv\Scripts\python examples\test_connection.py
 else
 	.venv/bin/python examples/test_connection.py
+endif
+
+# Run connection test (alias)
+test-connection:
+	@echo "🧪 Running boto3 connection test..."
+ifeq ($(OS),Windows_NT)
+	.\.venv\Scripts\python examples\test_connection.py
+else
+	.venv/bin/python examples/test_connection.py
+endif
+
+# Run simple S3 operations example
+test-simple:
+	@echo "🪣 Running simple S3 operations example..."
+ifeq ($(OS),Windows_NT)
+	.\.venv\Scripts\python examples\simple_s3_operations.py
+else
+	.venv/bin/python examples/simple_s3_operations.py
+endif
+
+# Run complete S3 lifecycle example
+test-lifecycle:
+	@echo "🔄 Running complete S3 lifecycle example..."
+ifeq ($(OS),Windows_NT)
+	.\.venv\Scripts\python examples\s3_bucket_lifecycle.py
+else
+	.venv/bin/python examples/s3_bucket_lifecycle.py
+endif
+
+# Run all examples
+test-all:
+	@echo "🎯 Running all examples..."
+ifeq ($(OS),Windows_NT)
+	.\.venv\Scripts\python run_all_examples.py
+else
+	.venv/bin/python run_all_examples.py
 endif
 
 # Clean up generated files

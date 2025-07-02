@@ -110,11 +110,59 @@ deactivate
 boto3-examples/
 ├── .venv/                 # Virtual environment (created locally)
 ├── examples/              # Example scripts and utilities
+│   ├── test_connection.py        # Test AWS connectivity
+│   ├── simple_s3_operations.py  # Basic S3 operations
+│   └── s3_bucket_lifecycle.py   # Complete S3 lifecycle demo
 ├── requirements.txt       # Python dependencies
+├── setup.py              # Cross-platform setup script
+├── setup.ps1             # Windows PowerShell setup script
+├── Makefile              # Development workflow commands
+├── .env.example          # Environment variables template
 ├── .gitignore            # Git ignore file
 ├── LICENSE               # License file
 └── README.md             # This file
 ```
+
+### Example Scripts
+
+This repository includes several example scripts to help you get started with boto3:
+
+#### 1. Connection Test (`examples/test_connection.py`)
+Tests your AWS credentials and basic connectivity:
+```bash
+python examples/test_connection.py
+```
+This script will:
+- Verify your AWS credentials are configured
+- List your AWS account information
+- Display available S3 buckets
+- Show all EC2 regions
+
+#### 2. Simple S3 Operations (`examples/simple_s3_operations.py`)
+A beginner-friendly script demonstrating basic S3 operations:
+```bash
+python examples/simple_s3_operations.py
+```
+This script will:
+- Create a test bucket
+- Upload a file
+- List buckets and objects
+- Download the file
+- Clean up (delete file and bucket)
+
+#### 3. Complete S3 Lifecycle (`examples/s3_bucket_lifecycle.py`)
+A comprehensive script with advanced S3 operations and error handling:
+```bash
+python examples/s3_bucket_lifecycle.py
+```
+This script demonstrates:
+- Professional error handling
+- Bucket creation with region considerations
+- File upload with metadata
+- Object listing and management
+- File download and verification
+- Complete cleanup with confirmation
+- Emergency cleanup procedures
 
 ### Common boto3 Usage Patterns
 
