@@ -92,9 +92,61 @@ Create `~/.aws/credentials`:
 aws_access_key_id = your_access_key_here
 aws_secret_access_key = your_secret_key_here
 
+[production]
+aws_access_key_id = your_prod_access_key_here
+aws_secret_access_key = your_prod_secret_key_here
+```
+
+Create `~/.aws/config`:
+```ini
 [default]
 region = us-east-1
+
+[profile production]
+region = us-west-2
 ```
+
+#### Option 4: AWS Profiles (Recommended)
+Configure multiple profiles for different environments:
+```bash
+# Configure default profile
+aws configure
+
+# Configure additional profiles
+aws configure --profile production
+aws configure --profile development
+
+# List available profiles
+aws configure list-profiles
+```
+
+### Using AWS Profiles
+
+All example scripts support AWS profiles. You can use profiles in several ways:
+
+#### Command Line Option
+```bash
+# Use specific profile
+python examples/test_connection.py --profile production
+python examples/simple_s3_operations.py --profile development
+
+# List available profiles
+python examples/test_connection.py --list-profiles
+```
+
+#### Environment Variable
+```bash
+# Set profile for session
+export AWS_PROFILE=production
+python examples/test_connection.py
+
+# On Windows (PowerShell)
+$env:AWS_PROFILE="production"
+python examples/test_connection.py
+```
+
+#### Makefile Commands with Profiles
+The Makefile commands will use the AWS_PROFILE environment variable if set, or you can modify the commands to include specific profiles.
 
 ### Deactivating the Virtual Environment
 
@@ -131,6 +183,10 @@ This repository includes several example scripts to help you get started with bo
 Tests your AWS credentials and basic connectivity:
 ```bash
 python examples/test_connection.py
+# With specific profile:
+python examples/test_connection.py --profile production
+# List available profiles:
+python examples/test_connection.py --list-profiles
 ```
 This script will:
 - Verify your AWS credentials are configured
@@ -142,6 +198,8 @@ This script will:
 A beginner-friendly script demonstrating basic S3 operations:
 ```bash
 python examples/simple_s3_operations.py
+# With specific profile:
+python examples/simple_s3_operations.py --profile production
 ```
 This script will:
 - Create a test bucket
@@ -154,6 +212,8 @@ This script will:
 A comprehensive script with advanced S3 operations and error handling:
 ```bash
 python examples/s3_bucket_lifecycle.py
+# With specific profile and region:
+python examples/s3_bucket_lifecycle.py --profile production --region us-west-2
 ```
 This script demonstrates:
 - Professional error handling
@@ -163,6 +223,16 @@ This script demonstrates:
 - File download and verification
 - Complete cleanup with confirmation
 - Emergency cleanup procedures
+
+#### 4. Run All Examples (`run_all_examples.py`)
+Run all examples in sequence:
+```bash
+python run_all_examples.py
+# With specific profile:
+python run_all_examples.py --profile production
+# Non-interactive mode:
+python run_all_examples.py --no-interactive
+```
 
 ### Common boto3 Usage Patterns
 

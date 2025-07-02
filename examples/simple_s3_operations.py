@@ -13,18 +13,52 @@ Requirements:
 import boto3
 import tempfile
 import os
+import argparse
 from datetime import datetime
-from botocore.exceptions import ClientError
+from botocore.exceptions import ClientError, ProfileNotFound
+
+
+def get_boto3_session(profile_name=None):
+    """Create a boto3 session with optional profile support."""
+    try:
+        if profile_name:
+            print(f"🔑 Using AWS profile: {profile_name}")
+            session = boto3.Session(profile_name=profile_name)
+        else:
+            # Check if AWS_PROFILE environment variable is set
+            env_profile = os.environ.get('AWS_PROFILE')
+            if env_profile:
+                print(f"🔑 Using AWS profile from environment: {env_profile}")
+                session = boto3.Session(profile_name=env_profile)
+            else:
+                print("🔑 Using default AWS credentials")
+                session = boto3.Session()
+        
+        return session
+    
+    except ProfileNotFound as e:
+        print(f"❌ AWS profile not found: {e}")
+        print("   Available profiles can be listed with: aws configure list-profiles")
+        return None
 
 
 def main():
     """Demonstrate basic S3 operations."""
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Simple S3 operations example')
+    parser.add_argument('--profile', '-p', help='AWS profile name to use')
+    args = parser.parse_args()
+    
     print("🪣 Simple S3 Operations Example")
     print("=" * 35)
     
-    # Create S3 client
+    # Create session and S3 client
+    session = get_boto3_session(args.profile)
+    if not session:
+        return
+    
     try:
-        s3 = boto3.client('s3')
+        s3 = session.client('s3')
         print("✅ S3 client created")
     except Exception as e:
         print(f"❌ Error creating S3 client: {e}")

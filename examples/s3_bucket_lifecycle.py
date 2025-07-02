@@ -21,18 +21,43 @@ import os
 import sys
 import time
 import tempfile
+import argparse
 from datetime import datetime
-from botocore.exceptions import ClientError, NoCredentialsError
+from botocore.exceptions import ClientError, NoCredentialsError, ProfileNotFound
+
+
+def get_boto3_session(profile_name=None):
+    """Create a boto3 session with optional profile support."""
+    try:
+        if profile_name:
+            print(f"🔑 Using AWS profile: {profile_name}")
+            session = boto3.Session(profile_name=profile_name)
+        else:
+            # Check if AWS_PROFILE environment variable is set
+            env_profile = os.environ.get('AWS_PROFILE')
+            if env_profile:
+                print(f"🔑 Using AWS profile from environment: {env_profile}")
+                session = boto3.Session(profile_name=env_profile)
+            else:
+                print("🔑 Using default AWS credentials")
+                session = boto3.Session()
+        
+        return session
+    
+    except ProfileNotFound as e:
+        print(f"❌ AWS profile not found: {e}")
+        print("   Available profiles can be listed with: aws configure list-profiles")
+        return None
 
 
 class S3Manager:
     """A class to manage S3 operations with proper error handling."""
     
-    def __init__(self, region='us-east-1'):
+    def __init__(self, session, region='us-east-1'):
         """Initialize S3 client."""
         try:
-            self.s3_client = boto3.client('s3', region_name=region)
-            self.s3_resource = boto3.resource('s3', region_name=region)
+            self.s3_client = session.client('s3', region_name=region)
+            self.s3_resource = session.resource('s3', region_name=region)
             self.region = region
             print(f"✅ S3 client initialized for region: {region}")
         except NoCredentialsError:
@@ -251,11 +276,22 @@ End of test file.
 
 def main():
     """Main function demonstrating complete S3 workflow."""
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Complete S3 bucket lifecycle demo')
+    parser.add_argument('--profile', '-p', help='AWS profile name to use')
+    parser.add_argument('--region', '-r', default='us-east-1', help='AWS region to use (default: us-east-1)')
+    args = parser.parse_args()
+    
     print("🚀 Starting S3 Bucket and File Operations Demo")
     print("=" * 55)
     
+    # Create session with optional profile
+    session = get_boto3_session(args.profile)
+    if not session:
+        sys.exit(1)
+    
     # Initialize S3 manager
-    s3_manager = S3Manager()
+    s3_manager = S3Manager(session, args.region)
     
     # Generate unique bucket name (S3 bucket names must be globally unique)
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")

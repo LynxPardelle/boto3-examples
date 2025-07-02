@@ -15,14 +15,17 @@ import os
 import sys
 import subprocess
 import time
+import argparse
 from pathlib import Path
 
 
-def run_example(script_name, description):
+def run_example(script_name, description, profile=None):
     """Run an example script and return success status."""
     print(f"\n{'='*60}")
     print(f"🚀 Running: {description}")
     print(f"📄 Script: {script_name}")
+    if profile:
+        print(f"🔑 Profile: {profile}")
     print('='*60)
     
     script_path = Path("examples") / script_name
@@ -38,8 +41,13 @@ def run_example(script_name, description):
         else:  # Unix-like
             python_path = ".venv/bin/python"
         
+        # Build command with optional profile
+        cmd = [python_path, str(script_path)]
+        if profile:
+            cmd.extend(['--profile', profile])
+        
         result = subprocess.run(
-            [python_path, str(script_path)],
+            cmd,
             capture_output=False,  # Show output in real-time
             text=True
         )
@@ -58,10 +66,21 @@ def run_example(script_name, description):
 
 def main():
     """Run all example scripts."""
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Run all boto3 examples')
+    parser.add_argument('--profile', '-p', help='AWS profile name to use for all examples')
+    parser.add_argument('--interactive', '-i', action='store_true', default=True,
+                       help='Prompt before running examples (default: True)')
+    parser.add_argument('--no-interactive', dest='interactive', action='store_false',
+                       help='Run all examples without prompting')
+    args = parser.parse_args()
+    
     print("🎯 boto3-examples: Running All Examples")
     print("=" * 60)
     print("This will run all example scripts to demonstrate boto3 capabilities.")
     print("Make sure your AWS credentials are configured before proceeding.")
+    if args.profile:
+        print(f"🔑 Using AWS profile: {args.profile}")
     print()
     
     # Check if we're in the right directory
@@ -80,15 +99,16 @@ def main():
     for i, (script, desc) in enumerate(examples, 1):
         print(f"   {i}. {desc}")
     
-    print("\n" + "=" * 60)
-    input("Press Enter to continue, or Ctrl+C to cancel...")
+    if args.interactive:
+        print("\n" + "=" * 60)
+        input("Press Enter to continue, or Ctrl+C to cancel...")
     
     # Run each example
     results = []
     start_time = time.time()
     
     for script_name, description in examples:
-        success = run_example(script_name, description)
+        success = run_example(script_name, description, args.profile)
         results.append((script_name, description, success))
         
         # Add a pause between examples
